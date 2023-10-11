@@ -7,7 +7,7 @@
 #
 name: OpenWrt-CI
 
-on:
+于:
   schedule:
     - cron: 0 20 * * *
 
