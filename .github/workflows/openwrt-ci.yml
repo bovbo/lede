@@ -45,15 +45,55 @@ jobs:
       - name: Update feeds
         run: |
           sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+          sed -i '$a src-git small8 https://github.com/kenzok8/small-package' feeds.conf.default
+          sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
+          sed -i 's/192.168.1.1/192.168.8.1/g' package/base-files/files/bin/config_generate
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Generate configuration file
+      - name: 生成配置文件
         run: make defconfig
+          rm -f ./.config*
+          touch ./.config
+          cat >> .config <<EOF
+          CONFIG_TARGET_ipq40xx=y
+          CONFIG_TARGET_ipq40xx_DEVICE_asus_rt-acrh17=y
+          CONFIG_TARGET_BOARD="ipq40xx"
 
+
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-argonne=y
+
+          CONFIG_PACKAGE_luci-app-autoreboot=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-app-cpufreq=y
+          CONFIG_PACKAGE_luci-app-filetransfer=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-mosdns=y
+          CONFIG_PACKAGE_luci-app-vssr=y
+          CONFIG_PACKAGE_luci-app-passwall=y
+          CONFIG_PACKAGE_luci-app-turboacc=y
+          CONFIG_PACKAGE_luci-app-smartdns=y
+          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_ipv6helper=y
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_TARGET_ROOTFS_SQUASHFS=y
+          CONFIG_KERNEL_BUILD_USER="ASUS_RT-Acrh17"
+          CONFIG_KERNEL_BUILD_DOMAIN="Azure"
+          EOF	
+          sed -i 's/^[ \t]*//g' ./.config
+          make defconfig        
       - name: Download packages
         run: make download -j16
-
+         find dl -size -1024c -exec ls -l {} \;
+         find dl -size -1024c -exec rm -f {} \;
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/mosdns_5.2.1-1_arm_cortex-a7_neon-vfpv4.ipk
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/v2dat_2022-12-15-47b8ee51-1_arm_cortex-a7_neon-vfpv4.ipk
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/v2ray-geoip_2023-09-28_all.ipk
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/v2ray-geosite_2023-09-28_all.ipk
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/luci-app-mosdns_1.5.12_all.ipk
+         wget -P ./packages https://github.com/sbwml/luci-app-mosdns/releases/download/v5.2.1/luci-i18n-mosdns-zh-cn_git-23.271.70451-e31521d_all.ipk
       - name: Compile firmware
         run: |
           make -j$(nproc) || make -j1 V=s
