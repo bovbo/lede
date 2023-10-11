@@ -59,11 +59,8 @@ jobs:
           CONFIG_TARGET_ipq40xx=y
           CONFIG_TARGET_ipq40xx_DEVICE_asus_rt-acrh17=y
           CONFIG_TARGET_BOARD="ipq40xx"
-
-
           CONFIG_PACKAGE_luci-theme-argon=y
           CONFIG_PACKAGE_luci-theme-argonne=y
-
           CONFIG_PACKAGE_luci-app-autoreboot=y
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-app-cpufreq=y
@@ -81,10 +78,13 @@ jobs:
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
           CONFIG_KERNEL_BUILD_USER="ASUS_RT-Acrh17"
           CONFIG_KERNEL_BUILD_DOMAIN="Azure"
-          EOF	
+          EOF
+          
           sed -i 's/^[ \t]*//g' ./.config
-          make defconfig        
+          make defconfig
+          
       - name: Download packages
+      
         run: make download -j16
          find dl -size -1024c -exec ls -l {} \;
          find dl -size -1024c -exec rm -f {} \;
